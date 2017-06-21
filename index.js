@@ -34,7 +34,7 @@ app.get('/', function (req, res) {
 });
  
 app.get('/application', function (req, res) {
-    database.ref('users').on("value", 
+    database.ref('users').once("value", 
       function(snapshot){
         res.json(snapshot.val());
       },function (errorObject) {
@@ -44,7 +44,7 @@ app.get('/application', function (req, res) {
  
 app.get('/application/:id', function (req, res) {
     var id = req.params.id;
-    database.ref('users/'+id).on("value", 
+    database.ref('users/'+id).once("value", 
       function(snapshot){
         res.json(snapshot.val());
       },function (errorObject) {
@@ -90,11 +90,17 @@ app.put('/application/:id', function (req, res) {
 
 app.delete('/application/:id', function (req, res) {
     var id = req.params.id;
-
-    database.ref('users/'+id).remove().then(function (){
-        res.send('User '+ id +' Deleted!');
-    });
-    
+    try {
+      database.ref('users/'+id).remove();
+      res.json({
+        status: 'SUCCESS'
+      });
+    } catch (e) {
+      console.log(e);
+      res.json({
+        status: 'ERROR'
+      })
+    }
 });
 
 app.listen(port, function() {
